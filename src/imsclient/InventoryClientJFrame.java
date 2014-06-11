@@ -243,20 +243,18 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         String[] itemNameArray = getItemNameArray();
         JComboBox itemNameComboBox = new JComboBox(itemNameArray);
         final JComponent[] input = new JComponent[]{
-            new JLabel("Item to Remove:"),
+            new JLabel("Find Item:"),
             itemNameComboBox,};
-
-        int i = JOptionPane.showConfirmDialog(null, input, "Select Item to Remove.",
+        int i = JOptionPane.showConfirmDialog(null, input, "Select Item.",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-//
-//        String s = JOptionPane.showInputDialog(null, "Enter the item name to search for");
         Document doc = outputWindow.getDocument();
-
         try {
             doc.remove(0, doc.getLength());
         } catch (BadLocationException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
 //        try {
 //            doc.insertString(doc.getLength(), "Searching for " + s + "...\n", null);
 //        } catch (BadLocationException ex) {
@@ -296,6 +294,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                         (String) itemQuantityComboBox.getSelectedItem());
             }
         }
+// TODO Handle removal        
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -351,6 +350,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                     Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (!("".equalsIgnoreCase(serverAddress.getText())) && (serverAddress.getText() != null)) {
+                    // Set serverURL
                     serverURL = serverAddress.getText();
                     try {
                         appendStringToOutputWindow("Server URL set as: "
