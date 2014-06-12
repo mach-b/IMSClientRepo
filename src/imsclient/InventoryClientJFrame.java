@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -255,23 +254,25 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         // Get Inventory from server
         String s = "";
         try {
-            s = httpHelper.getRequest(serverURL + requestGetInventory);
+            s = httpHelper.sendGetRequest(serverURL + requestGetInventory);
         } catch (IOException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (isJSON(s)) {
             Inventory inv = new Gson().fromJson(s, Inventory.class);
             inv.createItemNameList();
+
             // Pass name list to JoptionPane
-            String[] nameList = new String[inv.getItemNameList().size()];
-            nameList = (String[]) inv.getItemNameList().toArray();
+            String[] nameList = inv.getNamesAsStringArray();
             JComboBox itemNameComboBox = new JComboBox(nameList);
             final JComponent[] input = new JComponent[]{
                 new JLabel("Select Item:"),
                 itemNameComboBox,};
             int i = JOptionPane.showConfirmDialog(null, input, "Find Item.",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-            InventoryItem item = inv.getItemFromInventory((String)itemNameComboBox.getSelectedItem());
+
+            InventoryItem item = inv.getItemFromInventory((String) itemNameComboBox.getSelectedItem());
+
             // Get Item details
             String itemName = item.getName();
             // Convert double to Currency.
@@ -280,7 +281,8 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
             String itemQuantity = String.valueOf(item.getQuantity());
             // Build String to display.
             String itemDescription = "ITEM: " + itemName
-                    + "\nPRICE: " + itemPrice + "\nQUANTITY: "+itemQuantity;
+                    + "\nPRICE: " + itemPrice + "\nQUANTITY: " + itemQuantity;
+
             // Write to outputWindow
             try {
                 writeStringToNewOutputWindow(itemDescription);
@@ -299,37 +301,80 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_findButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-        String[] itemNameArray = getItemNameArray();
-        JComboBox itemNameComboBox = new JComboBox(itemNameArray);
-        final JComponent[] input = new JComponent[]{
-            new JLabel("Select Item to Remove:"),
-            itemNameComboBox,};
-        int i = JOptionPane.showConfirmDialog(null, input, "Item Removal.",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        // Confirmation of removal
-        if (i == JOptionPane.OK_OPTION) {
-            String[] itemQuantityArray = getItemQuantityArray((String) itemNameComboBox.getSelectedItem());
-            JComboBox itemQuantityComboBox = new JComboBox(itemQuantityArray);
-            final JComponent[] quantityInput = new JComponent[]{
-                new JLabel("Quantity to Remove:"),
-                itemQuantityComboBox,};
-            i = JOptionPane.showConfirmDialog(null, quantityInput, "You requested removal of "
-                    + (String) itemQuantityComboBox.getSelectedItem() + " "
-                    + (String) itemNameComboBox.getSelectedItem() + " click OK to proceed.",
+        // Get Inventory from server
+        String s = "";
+        try {
+            s = httpHelper.sendGetRequest(serverURL + requestGetInventory);
+        } catch (IOException ex) {
+            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (isJSON(s)) {
+            Inventory inv = new Gson().fromJson(s, Inventory.class);
+            inv.createItemNameList();
+
+            String[] nameList = inv.getNamesAsStringArray();
+            JComboBox itemNameComboBox = new JComboBox(nameList);
+            final JComponent[] input = new JComponent[]{
+                new JLabel("Select Item to Remove:"),
+                itemNameComboBox,};
+            int i = JOptionPane.showConfirmDialog(null, input, "Remove Item.",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            // Check user selected OK
             if (i == JOptionPane.OK_OPTION) {
-                try {
-                    writeStringToNewOutputWindow("You Removed Item: "
-                            + (String) itemNameComboBox.getSelectedItem() + "\nQuantity Removed: "
-                            + (String) itemQuantityComboBox.getSelectedItem());
-                } catch (BadLocationException ex) {
-                    Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                InventoryItem item = inv.getItemFromInventory((String) itemNameComboBox.getSelectedItem());
+                // Create array of values that could be removed
+                String[] quantityArray = getItemQuantityArray(item.getQuantity());
+                JComboBox itemQuantityComboBox = new JComboBox(quantityArray);
+                JComponent[] quantityInput = new JComponent[]{
+                    new JLabel("Quantity to Remove:"),
+                    itemQuantityComboBox,};
+                i = JOptionPane.showConfirmDialog(null, quantityInput, "How many "
+                        + (String) itemNameComboBox.getSelectedItem() + " would you like to remove?",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (i == JOptionPane.OK_OPTION) {
+                    // Confirm removal
+                    i = JOptionPane.showConfirmDialog(null, "You requested removal of "
+                            + (String) itemQuantityComboBox.getSelectedItem() + " "
+                            + (String) itemNameComboBox.getSelectedItem() + " click OK to proceed.",
+                            "Confirm Removal", JOptionPane.OK_CANCEL_OPTION);
+                    if (i == JOptionPane.OK_OPTION) {
+                        // POST REMOVAL OF OBJECT
+                        InventoryItem itemToRemove = new InventoryItem(item.getName(),
+                                String.valueOf(item.getPrice()), (String)itemQuantityComboBox.getSelectedItem());
+                        String json = new Gson().toJson(itemToRemove);
+                        try {
+                            httpHelper.sendPostRequest((serverURL + requestRemoveItem), json);
+                            System.out.println("Post request sent.");
+                            try {
+                                writeStringToNewOutputWindow("Request for removal of "+(String)itemQuantityComboBox.getSelectedItem()
+                                        +" "+item.getName()+"(s) sent to server.");
+                            } catch (BadLocationException ex) {
+                                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } catch (Exception ex) {
+                            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        System.out.println("Removal cancelled by user.");
+                    }
+                } else {
+                    System.out.println("Removal cancelled by user.");
                 }
-                removeItem((String) itemNameComboBox.getSelectedItem(),
-                        (String) itemQuantityComboBox.getSelectedItem());
+
+            } else {
+                System.out.println("Removal cancelled by user.");
+            }
+
+        } else {
+            System.out.println("Invalid Inventory Returned: \n" + s);
+            // Display error message to client
+            try {
+                writeStringToNewOutputWindow("ERROR: Invalid Inventory supplied by Server.");
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-// TODO Handle removal        
+    
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -462,8 +507,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         return toReturn; // TEMP FIX
     }
 
-    private String[] getItemQuantityArray(String s) {
-        int quantity = getItemQuantity(s);
+    private String[] getItemQuantityArray(int quantity) {
         String[] toReturn = new String[quantity];
         for (int i = 0; i < quantity; i++) {
             toReturn[i] = ("" + (i + 1));
@@ -479,8 +523,6 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 // TODO - GET QUANTITY FROM SERVER
         return 5;  // TEMP FIX
     }
-    
-    
 
     private boolean isJSON(String s) {
         try {

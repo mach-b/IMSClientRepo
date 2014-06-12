@@ -20,7 +20,7 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public class HttpHelper {
 
-    public String getRequest(String url) throws MalformedURLException, IOException {
+    public String sendGetRequest(String url) throws MalformedURLException, IOException {
         URL getRequestURL = new URL(url);
         HttpURLConnection con = (HttpURLConnection) getRequestURL.openConnection();
         con.setRequestMethod("GET");
@@ -73,7 +73,7 @@ public class HttpHelper {
     }
 
     // HTTP POST request
-    private void sendPost(String url, String message) throws Exception {
+    public void sendPostRequest(String url, String message) throws Exception {
         URL obj = new URL(url);
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         //add reuqest header

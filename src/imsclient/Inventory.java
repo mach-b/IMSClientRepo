@@ -80,6 +80,10 @@ public class Inventory {
     public void removeItem(InventoryItem item) {
         itemArrayList.remove(item);
     }
+    
+    public String[] getNamesAsStringArray() {
+        return (String[]) getItemNameList().toArray();
+    }
 
     public InventoryItem getItemFromInventory(String name) {
         double price = getItemPrice(name);
