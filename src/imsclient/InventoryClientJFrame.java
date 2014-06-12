@@ -27,12 +27,11 @@ import javax.swing.text.Document;
 public class InventoryClientJFrame extends javax.swing.JFrame {
 
     private Client client;
-    private String serverURL = "http://localhost:8080/InventoryWebServiceService/InventoryWebService";
-    //private String serverURL = "http://inventory";
+    private String serverURL = "http://localhost:8080/InventoryManagementSystem-war/webresources";
     private final HttpHelper httpHelper;
 
     private final String requestAddItem = "/manager/add";
-    private final String requestUpdateItem = "/manager/update";  // FIX CASE OF VARIABLE
+    private final String requestUpdateItem = "/manager/update";  // FIX CASE OF VARIABLES
     private final String requestRemoveItem = "/manager/remove";
     private final String requestGetInventory = "/manager";
 
@@ -259,10 +258,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, inputs, "Enter Item to Add Details.",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         // Check input valid CANNOT ASSUME USER HAS ENTERED CORRECTLY
+        
         boolean validFormat = true;
         if (!itemName.getText().equalsIgnoreCase("") && itemName.getText() != null) {
-            if (isValidPrice(itemPrice.getText())) {
-                if (isValidQuantity(itemQuantity.getText())) {
+            if (isPriceValid(itemPrice.getText())) {
+                if (isQuantityValid(itemQuantity.getText())) {
 
                 } else {
                     validFormat = false;
@@ -604,7 +604,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
-    private boolean isValidPrice(String text) {
+    private boolean isPriceValid(String text) {
         try {
             double price = Double.parseDouble(text);
             return price >= 0;
@@ -613,7 +613,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
-    private boolean isValidQuantity(String text) {
+    private boolean isQuantityValid(String text) {
         try {
             int quantity = Integer.parseInt(text);
             return quantity >= 0;
