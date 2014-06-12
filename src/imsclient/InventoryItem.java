@@ -80,4 +80,10 @@ public class InventoryItem {
     public String convertItemToJSON() {
         return new Gson().toJson(this);
     }
+    
+    @Override
+    public String toString() {
+        return "ITEM - Name: "+name+", Price: "+price+", Quantity: "+quantity;
+    }
+
 }

@@ -216,13 +216,32 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void listAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listAllButtonActionPerformed
-        String s = "List of all inventory items...\n";
+        // Get Inventory from server
+        String s = "";
         try {
-            writeStringToNewOutputWindow(s);
-        } catch (BadLocationException ex) {
+            s = httpHelper.sendGetRequest(serverURL + requestGetInventory);
+        } catch (IOException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        if (isJSON(s)) {
+            Inventory inv = new Gson().fromJson(s, Inventory.class);
+            try {
+                writeStringToNewOutputWindow("LIST OF ALL ITEMS IN INVENTORY...\n");
+                for(InventoryItem item : inv.getItemArrayList()) {
+                    appendStringToOutputWindow("\n"+item.toString()+"\n");
+                }
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else {
+            System.out.println("Invalid Inventory Returned: \n" + s);
+            // Display error message to client
+            try {
+                writeStringToNewOutputWindow("ERROR: Invalid Inventory supplied by Server.");
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }//GEN-LAST:event_listAllButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
@@ -239,15 +258,65 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
             itemQuantity,};
         JOptionPane.showConfirmDialog(null, inputs, "Enter Item to Add Details.",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        try {
-            writeStringToNewOutputWindow("You entered - Item Name:"
-                    + itemName.getText() + ", Item Price:"
-                    + itemPrice.getText() + ", Quantity:"
-                    + itemQuantity.getText());
-        } catch (BadLocationException ex) {
-            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        // Check input valid CANNOT ASSUME USER HAS ENTERED CORRECTLY
+        boolean validFormat = true;
+        if (!itemName.getText().equalsIgnoreCase("") && itemName.getText() != null) {
+            if (isValidPrice(itemPrice.getText())) {
+                if (isValidQuantity(itemQuantity.getText())) {
+
+                } else {
+                    validFormat = false;
+                    System.out.println("ERROR: Item quantity is not valid, add cancelled");
+                }
+            } else {
+                validFormat = false;
+                System.out.println("ERROR: Item price is not valid, add cancelled");
+            }
+        } else {
+            validFormat = false;
+            System.out.println("ERROR: Item name is not valid, add cancelled");
         }
-// TODO add Item to Inventory
+        if (validFormat) {
+            // Get confirmation of addition.
+            int i = JOptionPane.showConfirmDialog(null, "You requested addition of\n"
+                    + itemQuantity.getText() + " x "
+                    + itemName.getText() + " at $" + itemPrice.getText()
+                    + "\nclick OK to proceed.",
+                    "Confirm Removal", JOptionPane.OK_CANCEL_OPTION);
+            if (i == JOptionPane.OK_OPTION) {
+                // POST ADDITION OF OBJECT - CAN ASSUME VALID FORMAT AS ALREADY CHECKED
+                // CHANGE FROM PASSING STRINGS IF UNSURE OF VALIDITY, OK FOR NOW.
+                InventoryItem itemToRemove = new InventoryItem(itemName.getText(),
+                        itemPrice.getText(), itemQuantity.getText());
+                String json = new Gson().toJson(itemToRemove);
+                try {
+                    httpHelper.sendPostRequest((serverURL + requestAddItem), json);
+                    System.out.println("Post request sent.");
+                    try {
+                        writeStringToNewOutputWindow("Request for addition of " + itemQuantity.getText()
+                                + " " + itemName.getText() + "(s) valued at $" + itemPrice.getText() + ",\n"
+                                + " this request has been submitted to the server.");
+                    } catch (BadLocationException ex) {
+                        Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } catch (Exception ex) {
+                    Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } else {
+            try {
+                writeStringToNewOutputWindow("ERROR: Entered Item Format invalid.\n"
+                        + "Required Format as follows:\nName must contain at least 1 character."
+                        + "\nPrice must be a non negative number. (Decimal value ok, but no other symbols or letters allowed)"
+                        + "\nQuantity must be a non negative 'whole' number.\n"
+                        + "You entered:\nItem Name:"
+                        + itemName.getText() + ", Item Price:"
+                        + itemPrice.getText() + ", Quantity:"
+                        + itemQuantity.getText());
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void findButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findButtonActionPerformed
@@ -338,16 +407,18 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                             + (String) itemNameComboBox.getSelectedItem() + " click OK to proceed.",
                             "Confirm Removal", JOptionPane.OK_CANCEL_OPTION);
                     if (i == JOptionPane.OK_OPTION) {
-                        // POST REMOVAL OF OBJECT
+                        // POST REMOVAL OF OBJECT - CAN ASSUME VALID FORMAT AS SOURCED FROM SERVER
+                        // CHANGE FROM PASSING STRINGS IF UNSURE OF VALIDITY, OK FOR NOW.
                         InventoryItem itemToRemove = new InventoryItem(item.getName(),
-                                String.valueOf(item.getPrice()), (String)itemQuantityComboBox.getSelectedItem());
+                                String.valueOf(item.getPrice()), (String) itemQuantityComboBox.getSelectedItem());
+
                         String json = new Gson().toJson(itemToRemove);
                         try {
                             httpHelper.sendPostRequest((serverURL + requestRemoveItem), json);
                             System.out.println("Post request sent.");
                             try {
-                                writeStringToNewOutputWindow("Request for removal of "+(String)itemQuantityComboBox.getSelectedItem()
-                                        +" "+item.getName()+"(s) sent to server.");
+                                writeStringToNewOutputWindow("Your request for removal of " + (String) itemQuantityComboBox.getSelectedItem()
+                                        + " " + item.getName() + "(s)\nhas been submitted to the server.");
                             } catch (BadLocationException ex) {
                                 Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -374,7 +445,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                 Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    
+
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -529,6 +600,24 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
             Inventory test = new Gson().fromJson(s, Inventory.class);
             return true;
         } catch (JsonSyntaxException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidPrice(String text) {
+        try {
+            double price = Double.parseDouble(text);
+            return price >= 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidQuantity(String text) {
+        try {
+            int quantity = Integer.parseInt(text);
+            return quantity >= 0;
+        } catch (NumberFormatException e) {
             return false;
         }
     }
