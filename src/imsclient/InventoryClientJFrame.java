@@ -27,14 +27,14 @@ import javax.swing.text.Document;
 public class InventoryClientJFrame extends javax.swing.JFrame {
 
     private Client client;
-    private String serverURL = "http://localhost:8080/InventoryManagementSystem-war";
+    private String serverURL = "http://localhost:8080/InventoryWebServiceService/InventoryWebService";
     //private String serverURL = "http://inventory";
     private final HttpHelper httpHelper;
 
-    private String requestAddItem;
-    private String requestUpdateItem;
+    private final String requestAddItem = "/manager/add";
+    private final String requestUpdateItem = "/manager/update";  // FIX CASE OF VARIABLE
     private final String requestRemoveItem = "/manager/remove";
-    private final String requestGetInventory = "";
+    private final String requestGetInventory = "/manager";
 
     /**
      * Creates new form InventoryClientJFrame
@@ -306,10 +306,10 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         } else {
             try {
                 writeStringToNewOutputWindow("ERROR: Entered Item Format invalid.\n"
-                        + "Required Format as follows:\nName must contain at least 1 character."
+                        + "\nRequired Format as follows:\nName must contain at least 1 character."
                         + "\nPrice must be a non negative number. (Decimal value ok, but no other symbols or letters allowed)"
                         + "\nQuantity must be a non negative 'whole' number.\n"
-                        + "You entered:\nItem Name:"
+                        + "\nYou entered:\nItem Name:"
                         + itemName.getText() + ", Item Price:"
                         + itemPrice.getText() + ", Quantity:"
                         + itemQuantity.getText());
