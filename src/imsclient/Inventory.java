@@ -12,21 +12,21 @@ import java.util.ArrayList;
  *
  * @author markburton
  */
-public class InventoryItemArrayList {
+public class Inventory {
 
     private ArrayList<InventoryItem> itemArrayList;
     private ArrayList<String> itemNameList;
 
-    public InventoryItemArrayList(ArrayList itemArrayList) {
+    public Inventory(ArrayList itemArrayList) {
         this.itemArrayList = itemArrayList;
     }
 
-    public InventoryItemArrayList() {
+    public Inventory() {
         this.itemArrayList = new ArrayList<>();
     }
 
-    public InventoryItemArrayList(String json) {
-        this.equals(new Gson().fromJson(json, InventoryItemArrayList.class));
+    public Inventory(String json) {
+        this.equals(new Gson().fromJson(json, Inventory.class));
     }
 
     public String convertItemArrayToJSON() {

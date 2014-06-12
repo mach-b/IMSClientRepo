@@ -24,12 +24,14 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 
     private Client client;
     private String serverURL;
+    private HttpHelper httpHelper;
 
     /**
      * Creates new form InventoryClientJFrame
      */
     public InventoryClientJFrame() {
         initComponents();
+        httpHelper = new HttpHelper();
         this.setLocationRelativeTo(null);
         if (serverURL == null) {
             try {

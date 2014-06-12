@@ -19,6 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
  * @author markburton
  */
 public class HttpHelper {
+    
 
     public void getRequest(String url) throws MalformedURLException, IOException {
         URL getRequestURL = new URL(url);
