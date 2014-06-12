@@ -8,6 +8,7 @@ package imsclient;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -165,6 +166,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         outputScrollPane.setSize(new java.awt.Dimension(500, 400));
 
         outputWindow.setEditable(false);
+        outputWindow.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         outputWindow.setMaximumSize(new java.awt.Dimension(500, 400));
         outputWindow.setMinimumSize(new java.awt.Dimension(450, 400));
         outputWindow.setPreferredSize(new java.awt.Dimension(500, 400));
@@ -221,7 +223,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         } catch (BadLocationException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }//GEN-LAST:event_listAllButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
@@ -250,43 +252,50 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void findButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findButtonActionPerformed
-        //enter item name, price, quantity
-        String[] itemNameArray = getItemNameArray();
-        JComboBox itemNameComboBox = new JComboBox(itemNameArray);
-        final JComponent[] input = new JComponent[]{
-            new JLabel("Find Item:"),
-            itemNameComboBox,};
-        int i = JOptionPane.showConfirmDialog(null, input, "Select Item.",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        Document doc = outputWindow.getDocument();
-        try {
-            doc.remove(0, doc.getLength());
-        } catch (BadLocationException ex) {
-            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        // Get Inventory from server
         String s = "";
         try {
-            s = httpHelper.getRequest(serverURL+requestGetInventory);
-//        try {
-//            doc.insertString(doc.getLength(), "Searching for " + s + "...\n", null);
-//        } catch (BadLocationException ex) {
-//            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-// TODO request info from server
+            s = httpHelper.getRequest(serverURL + requestGetInventory);
         } catch (IOException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(isJSON(s)){
+        if (isJSON(s)) {
             Inventory inv = new Gson().fromJson(s, Inventory.class);
             inv.createItemNameList();
-            inv.getItemNameList().stream().forEach((name) -> {
-                System.out.println(name+"\n");
-            });
-        }else {
-            System.out.println("Inventory Returned: "+s);
+            // Pass name list to JoptionPane
+            String[] nameList = new String[inv.getItemNameList().size()];
+            nameList = (String[]) inv.getItemNameList().toArray();
+            JComboBox itemNameComboBox = new JComboBox(nameList);
+            final JComponent[] input = new JComponent[]{
+                new JLabel("Select Item:"),
+                itemNameComboBox,};
+            int i = JOptionPane.showConfirmDialog(null, input, "Find Item.",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            InventoryItem item = inv.getItemFromInventory((String)itemNameComboBox.getSelectedItem());
+            // Get Item details
+            String itemName = item.getName();
+            // Convert double to Currency.
+            NumberFormat formatter = NumberFormat.getCurrencyInstance();
+            String itemPrice = formatter.format(item.getPrice());
+            String itemQuantity = String.valueOf(item.getQuantity());
+            // Build String to display.
+            String itemDescription = "ITEM: " + itemName
+                    + "\nPRICE: " + itemPrice + "\nQUANTITY: "+itemQuantity;
+            // Write to outputWindow
+            try {
+                writeStringToNewOutputWindow(itemDescription);
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            System.out.println("Invalid Inventory Returned: \n" + s);
+            // Display error message to client
+            try {
+                writeStringToNewOutputWindow("ERROR: Invalid Inventory supplied by Server.");
+            } catch (BadLocationException ex) {
+                Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        
-        
     }//GEN-LAST:event_findButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
@@ -470,6 +479,8 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 // TODO - GET QUANTITY FROM SERVER
         return 5;  // TEMP FIX
     }
+    
+    
 
     private boolean isJSON(String s) {
         try {

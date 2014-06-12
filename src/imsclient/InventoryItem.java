@@ -14,7 +14,8 @@ import com.google.gson.Gson;
  */
 public class InventoryItem {
     private String name;
-    private double price, quantity;
+    private double price;
+    private int quantity;
             
     public InventoryItem() {
     }
@@ -25,11 +26,11 @@ public class InventoryItem {
             this.price = Double.parseDouble(price);
         }
         if(isDouble(quantity)){
-            this.price = Double.parseDouble(quantity);
+            this.quantity = Integer.parseInt(quantity);
         }
     }
     
-    public InventoryItem(String name, Double price, Double quantity) {
+    public InventoryItem(String name, Double price, int quantity) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
@@ -60,7 +61,7 @@ public class InventoryItem {
         return price;
     }
 
-    public Double getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
@@ -72,7 +73,7 @@ public class InventoryItem {
         this.price = price;
     }
 
-    public void setQuantity(Double quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
    
