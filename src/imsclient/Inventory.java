@@ -21,6 +21,14 @@ public class Inventory {
         this.itemArrayList = itemArrayList;
     }
 
+    public ArrayList<InventoryItem> getItemArrayList() {
+        return itemArrayList;
+    }
+
+    public ArrayList<String> getItemNameList() {
+        return itemNameList;
+    }
+
     public Inventory() {
         this.itemArrayList = new ArrayList<>();
     }

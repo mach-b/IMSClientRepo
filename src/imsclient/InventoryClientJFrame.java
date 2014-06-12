@@ -5,6 +5,10 @@
  */
 package imsclient;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -23,8 +27,14 @@ import javax.swing.text.Document;
 public class InventoryClientJFrame extends javax.swing.JFrame {
 
     private Client client;
-    private String serverURL;
-    private HttpHelper httpHelper;
+    private String serverURL = "http://localhost:8080/InventoryManagementSystem-war";
+    //private String serverURL = "http://inventory";
+    private final HttpHelper httpHelper;
+
+    private String requestAddItem;
+    private String requestUpdateItem;
+    private final String requestRemoveItem = "/manager/remove";
+    private final String requestGetInventory = "";
 
     /**
      * Creates new form InventoryClientJFrame
@@ -46,8 +56,6 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     private void setClient(Client client) {
         this.client = client;
     }
-
-
 
     private void setServerURL(String url) {
         this.serverURL = url;
@@ -213,6 +221,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         } catch (BadLocationException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }//GEN-LAST:event_listAllButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
@@ -255,23 +264,38 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         } catch (BadLocationException ex) {
             Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
+        String s = "";
+        try {
+            s = httpHelper.getRequest(serverURL+requestGetInventory);
 //        try {
 //            doc.insertString(doc.getLength(), "Searching for " + s + "...\n", null);
 //        } catch (BadLocationException ex) {
 //            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 // TODO request info from server
+        } catch (IOException ex) {
+            Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if(isJSON(s)){
+            Inventory inv = new Gson().fromJson(s, Inventory.class);
+            inv.createItemNameList();
+            inv.getItemNameList().stream().forEach((name) -> {
+                System.out.println(name+"\n");
+            });
+        }else {
+            System.out.println("Inventory Returned: "+s);
+        }
+        
+        
     }//GEN-LAST:event_findButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         String[] itemNameArray = getItemNameArray();
         JComboBox itemNameComboBox = new JComboBox(itemNameArray);
         final JComponent[] input = new JComponent[]{
-            new JLabel("Item to Remove:"),
+            new JLabel("Select Item to Remove:"),
             itemNameComboBox,};
-        int i = JOptionPane.showConfirmDialog(null, input, "Select Item to Remove.",
+        int i = JOptionPane.showConfirmDialog(null, input, "Item Removal.",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         // Confirmation of removal
         if (i == JOptionPane.OK_OPTION) {
@@ -424,7 +448,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private String[] getItemNameArray() {
- // TODO GET FROM SERVER        
+        // TODO GET FROM SERVER        
         String[] toReturn = {"A", "B", "C"};
         return toReturn; // TEMP FIX
     }
@@ -445,6 +469,15 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     private int getItemQuantity(String s) {
 // TODO - GET QUANTITY FROM SERVER
         return 5;  // TEMP FIX
+    }
+
+    private boolean isJSON(String s) {
+        try {
+            Inventory test = new Gson().fromJson(s, Inventory.class);
+            return true;
+        } catch (JsonSyntaxException e) {
+            return false;
+        }
     }
 
 }

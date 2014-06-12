@@ -19,9 +19,8 @@ import javax.net.ssl.HttpsURLConnection;
  * @author markburton
  */
 public class HttpHelper {
-    
 
-    public void getRequest(String url) throws MalformedURLException, IOException {
+    public String getRequest(String url) throws MalformedURLException, IOException {
         URL getRequestURL = new URL(url);
         HttpURLConnection con = (HttpURLConnection) getRequestURL.openConnection();
         con.setRequestMethod("GET");
@@ -32,18 +31,45 @@ public class HttpHelper {
         System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+        StringBuffer response;
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()))) {
+            String inputLine;
+            response = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
         }
-        in.close();
-
+        
         //print result RETURN STRING - maybe JSON string
-        System.out.println(response.toString());
+        System.out.println("Response: "+response.toString());
+        return response.toString();
+        
+    }
+    
+    public String getRequest2(String urlString) throws MalformedURLException, IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn
+                = (HttpURLConnection) url.openConnection();
+
+//        if (conn.getResponseCode() != 200) {
+//            throw new IOException(conn.getResponseMessage());
+//        }
+
+        StringBuilder sb;
+        try ( // Buffer the result into a string
+                BufferedReader rd = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()))) {
+            sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+
+        conn.disconnect();
+        return sb.toString();
+
     }
 
     // HTTP POST request
