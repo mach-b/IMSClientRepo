@@ -1,9 +1,11 @@
+package imsclient;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imsclient;
+
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -32,7 +34,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     //private String serverURL = "http://localhost:8080/IMS/webresources/";
     private final HttpHelper httpHelper;
 
-    private final String requestAddItem = "manager/add/";
+    private final String requestAddItem = "manager/create/";
     private final String requestUpdateItem = "manager/update/";  // FIX CASE OF VARIABLES
     private final String requestRemoveItem = "manager/remove/";
     private final String requestGetInventory = "manager";
@@ -122,7 +124,6 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         logoPanel.setMaximumSize(new java.awt.Dimension(500, 100));
         logoPanel.setMinimumSize(new java.awt.Dimension(500, 100));
         logoPanel.setPreferredSize(new java.awt.Dimension(500, 100));
-        logoPanel.setSize(new java.awt.Dimension(500, 100));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imsclient/logoIMS.png"))); // NOI18N
@@ -181,7 +182,6 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         outputWindow.setMaximumSize(new java.awt.Dimension(500, 400));
         outputWindow.setMinimumSize(new java.awt.Dimension(450, 400));
         outputWindow.setPreferredSize(new java.awt.Dimension(500, 400));
-        outputWindow.setSize(new java.awt.Dimension(500, 400));
         outputScrollPane.setViewportView(outputWindow);
 
         getContentPane().add(outputScrollPane);
