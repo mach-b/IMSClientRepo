@@ -8,6 +8,7 @@ package imsclient;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -45,41 +46,91 @@ public class HttpHelper {
         return response.toString();
         
     }
+
+//    // HTTP POST request
+//    public String sendPostRequest(String url, String json) throws Exception {
+//        URL obj = new URL(url);
+//        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+//        //add reuqest header
+//        con.setRequestMethod("POST");
+//        con.setDoOutput(true);
+//        con.setRequestProperty("content-type", "application/json");
+//        
+//        
+//        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+//            wr.writeBytes(url);
+//            wr.flush();
+//        }
+//        int responseCode = con.getResponseCode();
+//        System.out.println("\nSending 'POST' request to URL : " + url);
+//        System.out.println("Message : " + url);
+//        System.out.println("Response Code : " + responseCode);
+//
+//        StringBuffer response;
+//        try (BufferedReader in = new BufferedReader(
+//                new InputStreamReader(con.getInputStream()))) {
+//            String inputLine;
+//            response = new StringBuffer();
+//            while ((inputLine = in.readLine()) != null) {
+//                response.append(inputLine);
+//            }
+//        }
+//
+//        //print result
+//        System.out.println(response.toString());
+//        con.disconnect();
+//        return response.toString();
+//    }
     
+      public static String sendPostRequest(String targetURL, String json)
+  {
+    URL url;
+    HttpURLConnection connection = null;  
+    try {
+      //Create connection
+      url = new URL(targetURL);
+      connection = (HttpURLConnection)url.openConnection();
+      connection.setRequestMethod("POST");
+      connection.setRequestProperty("Content-Type", 
+           "application/x-www-form-urlencoded");
+			
+      connection.setRequestProperty("Content-Length", "" + 
+               Integer.toString(json.getBytes().length));
+      connection.setRequestProperty("Content-Language", "en-US");  
+			
+      connection.setUseCaches (false);
+      connection.setDoInput(true);
+      connection.setDoOutput(true);
 
-
-    // HTTP POST request
-    public String sendPostRequest(String url) throws Exception {
-        URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-        //add reuqest header
-        con.setRequestMethod("POST");
-        con.setDoOutput(true);
-        con.setRequestProperty("content-type", "application/json");
-        
-        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.writeBytes(url);
-            wr.flush();
-        }
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Message : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        StringBuffer response;
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
-            String inputLine;
-            response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
+        try ( //Send request
+                DataOutputStream wr = new DataOutputStream (
+                connection.getOutputStream ())) {
+            wr.writeBytes (json);
+            wr.flush ();
         }
 
-        //print result
-        System.out.println(response.toString());
-        con.disconnect();
-        return response.toString();
+      //Get Response	
+      InputStream is = connection.getInputStream();
+      StringBuilder response;
+        try (BufferedReader rd = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            response = new StringBuilder();
+            while((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            } }
+      return response.toString();
+
+    } catch (IOException e) {
+
+      return null;
+
+    } finally {
+
+      if(connection != null) {
+        connection.disconnect(); 
+      }
     }
+  }
 
 }

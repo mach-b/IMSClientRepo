@@ -303,7 +303,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                         itemPrice.getText(), itemQuantity.getText());
                 String json = new Gson().toJson(itemToRemove);
                 try {
-                    httpHelper.sendPostRequest((serverURL + requestAddItem + json));
+                    httpHelper.sendPostRequest((serverURL + requestAddItem), json);
                     System.out.println("Post request sent.");
                     try {
                         writeStringToNewOutputWindow("Request for addition of " + itemQuantity.getText()
@@ -427,7 +427,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 
                         String json = new Gson().toJson(itemToRemove);
                         try {
-                            httpHelper.sendPostRequest((serverURL + requestRemoveItem+json));
+                            httpHelper.sendPostRequest((serverURL + requestRemoveItem),json);
                             System.out.println("Post request sent.");
                             try {
                                 writeStringToNewOutputWindow("Your request for removal of " + (String) itemQuantityComboBox.getSelectedItem()
