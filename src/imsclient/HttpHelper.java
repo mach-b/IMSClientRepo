@@ -41,10 +41,12 @@ public class HttpHelper {
             }
         }
         //print result RETURN STRING - maybe JSON string
-        System.out.println("Response: "+response.toString());
-        con.disconnect();
+        System.out.println("Response: " + response.toString());
+        if (con != null) {
+            con.disconnect();
+        }
         return response.toString();
-        
+
     }
 
 //    // HTTP POST request
@@ -81,56 +83,55 @@ public class HttpHelper {
 //        con.disconnect();
 //        return response.toString();
 //    }
-    
-      public static String sendPostRequest(String targetURL, String json)
-  {
-    URL url;
-    HttpURLConnection connection = null;  
-    try {
-      //Create connection
-      url = new URL(targetURL);
-      connection = (HttpURLConnection)url.openConnection();
-      connection.setRequestMethod("POST");
-      connection.setRequestProperty("Content-Type", 
-           "application/x-www-form-urlencoded");
-			
-      connection.setRequestProperty("Content-Length", "" + 
-               Integer.toString(json.getBytes().length));
-      connection.setRequestProperty("Content-Language", "en-US");  
-			
-      connection.setUseCaches (false);
-      connection.setDoInput(true);
-      connection.setDoOutput(true);
+    public static String sendPostRequest(String targetURL, String json) {
+        URL url;
+        HttpURLConnection connection = null;
+        try {
+            //Create connection
+            url = new URL(targetURL);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type",
+                    "application/x-www-form-urlencoded");
 
-        try ( //Send request
-                DataOutputStream wr = new DataOutputStream (
-                connection.getOutputStream ())) {
-            wr.writeBytes (json);
-            wr.flush ();
+            connection.setRequestProperty("Content-Length", ""
+                    + Integer.toString(json.getBytes().length));
+            connection.setRequestProperty("Content-Language", "en-US");
+
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            try ( //Send request
+                    DataOutputStream wr = new DataOutputStream(
+                            connection.getOutputStream())) {
+                        wr.writeBytes(json);
+                        wr.flush();
+                    }
+
+                    //Get Response	
+                    InputStream is = connection.getInputStream();
+                    StringBuilder response;
+                    try (BufferedReader rd = new BufferedReader(new InputStreamReader(is))) {
+                        String line;
+                        response = new StringBuilder();
+                        while ((line = rd.readLine()) != null) {
+                            response.append(line);
+                            response.append('\r');
+                        }
+                    }
+                    return response.toString();
+
+        } catch (IOException e) {
+
+            return null;
+
+        } finally {
+
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
-
-      //Get Response	
-      InputStream is = connection.getInputStream();
-      StringBuilder response;
-        try (BufferedReader rd = new BufferedReader(new InputStreamReader(is))) {
-            String line;
-            response = new StringBuilder();
-            while((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            } }
-      return response.toString();
-
-    } catch (IOException e) {
-
-      return null;
-
-    } finally {
-
-      if(connection != null) {
-        connection.disconnect(); 
-      }
     }
-  }
 
 }

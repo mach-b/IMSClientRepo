@@ -86,19 +86,5 @@ public class Inventory {
         return (String[]) getItemNameList().toArray();
     }
 
-    public InventoryItem getItemFromInventory(String name) {
-        double price = getItemPrice(name);
-        int quantity = getItemQuantity(name);
-        InventoryItem item = new InventoryItem();
-        if(!name.equalsIgnoreCase("")) {
-            item.setName(name);
-        }
-        if(price>=0) {  // Check is 0 ok?
-            item.setPrice(price);
-        }
-        if(quantity>=0) {   // Check is 0 ok?
-            item.setQuantity(quantity);
-        }
-        return item;
-    }
+
 }

@@ -353,7 +353,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
             int i = JOptionPane.showConfirmDialog(null, input, "Find Item.",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-            InventoryItem item = inv.getItemFromInventory((String) itemNameComboBox.getSelectedItem());
+            InventoryItem item = inv.getItem((String) itemNameComboBox.getSelectedItem());
 
             // Get Item details
             String itemName = item.getName();
@@ -403,7 +403,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             // Check user selected OK
             if (i == JOptionPane.OK_OPTION) {
-                InventoryItem item = inv.getItemFromInventory((String) itemNameComboBox.getSelectedItem());
+                InventoryItem item = inv.getItem((String) itemNameComboBox.getSelectedItem());
                 // Create array of values that could be removed
                 String[] quantityArray = getItemQuantityArray(item.getQuantity());
                 JComboBox itemQuantityComboBox = new JComboBox(quantityArray);
