@@ -5,8 +5,6 @@ package imsclient;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
@@ -23,19 +21,18 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 /**
+ * The Inventory Management Service JavaSE Client
  *
  * @author markburton
  */
 public class InventoryClientJFrame extends javax.swing.JFrame {
 
-    private Client client;
     private String serverURL = "http://localhost:8080/InventoryManagementSystem/";
     //private String serverURL = "http://localhost:8080/InventoryManagementSystem/webresources/";
-    //private String serverURL = "http://localhost:8080/IMS/webresources/";
     private final HttpHelper httpHelper;
 
     private final String requestAddItem = "manager/create/";
-    private final String requestUpdateItem = "manager/update/";  // FIX CASE OF VARIABLES
+    private final String requestUpdateItem = "manager/update/";
     private final String requestRemoveItem = "manager/remove/";
     private final String requestGetInventory = "manager";
 
@@ -56,10 +53,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
-    private void setClient(Client client) {
-        this.client = client;
-    }
-
+    /**
+     * Sets the URL endpoint of the server
+     *
+     * @param url
+     */
     private void setServerURL(String url) {
         this.serverURL = url;
         if (!(serverURL == null) && !("".equals(serverURL))) {
@@ -79,12 +77,24 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Clears outputWindow and writes a String to it.
+     *
+     * @param s the string to be written
+     * @throws BadLocationException
+     */
     private void writeStringToNewOutputWindow(String s) throws BadLocationException {
         Document doc = outputWindow.getDocument();
         doc.remove(0, doc.getLength());
         doc.insertString(doc.getLength(), s, null);
     }
 
+    /**
+     * Appends a String to the outputWindow
+     *
+     * @param s the string to be written
+     * @throws BadLocationException
+     */
     private void appendStringToOutputWindow(String s) throws BadLocationException {
         Document doc = outputWindow.getDocument();
         doc.insertString(doc.getLength(), s, null);
@@ -227,6 +237,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Button that lists all inventory items to the outputWindow
+     *
+     * @param evt a mouse click event
+     */
     private void listAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listAllButtonActionPerformed
         // Get Inventory from server
         String s = "";
@@ -239,13 +254,13 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
             Inventory inv = new Gson().fromJson(s, Inventory.class);
             try {
                 writeStringToNewOutputWindow("LIST OF ALL ITEMS IN INVENTORY...\n");
-                for(InventoryItem item : inv.getItemArrayList()) {
-                    appendStringToOutputWindow("\n"+item.toString()+"\n");
+                for (InventoryItem item : inv.getItemArrayList()) {
+                    appendStringToOutputWindow("\n" + item.toString() + "\n");
                 }
             } catch (BadLocationException ex) {
                 Logger.getLogger(InventoryClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }else {
+        } else {
             System.out.println("Invalid Inventory Returned: \n" + s);
             // Display error message to client
             try {
@@ -256,6 +271,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_listAllButtonActionPerformed
 
+    /**
+     * Facilitates the addition of an Item to the Inventory
+     *
+     * @param evt a mouse click event
+     */
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         //Add item to clients itemList via JOptionPane
         JTextField itemName = new JTextField();
@@ -271,7 +291,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         JOptionPane.showConfirmDialog(null, inputs, "Enter Item to Add Details.",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         // Check input valid CANNOT ASSUME USER HAS ENTERED CORRECTLY
-        
+
         boolean validFormat = true;
         if (!itemName.getText().equalsIgnoreCase("") && itemName.getText() != null) {
             if (isPriceValid(itemPrice.getText())) {
@@ -303,7 +323,8 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                         itemPrice.getText(), itemQuantity.getText());
                 String json = new Gson().toJson(itemToRemove);
                 try {
-                    httpHelper.sendPostRequest((serverURL + requestAddItem), json);
+                    //httpHelper.sendPostRequest((serverURL + requestAddItem), json);
+                    httpHelper.sendGetRequest(serverURL+requestAddItem+"?json="+json);
                     System.out.println("Post request sent.");
                     try {
                         writeStringToNewOutputWindow("Request for addition of " + itemQuantity.getText()
@@ -332,6 +353,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
+    /**
+     * Displays a drop down list of items in the inventory, the selected items
+     * name, price, and quantity will be displayed on the outputWindow.
+     *
+     * @param evt a mouse click event
+     */
     private void findButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findButtonActionPerformed
         // Get Inventory from server
         String s = "";
@@ -382,6 +409,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_findButtonActionPerformed
 
+    /**
+     * Displays a drop down list of items in the inventory, the user can then
+     * select to remove a quantity of the item.
+     *
+     * @param evt a mouse click event
+     */
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         // Get Inventory from server
         String s = "";
@@ -427,7 +460,8 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 
                         String json = new Gson().toJson(itemToRemove);
                         try {
-                            httpHelper.sendPostRequest((serverURL + requestRemoveItem),json);
+                            //httpHelper.sendPostRequest((serverURL + requestRemoveItem), json);
+                            httpHelper.sendGetRequest(serverURL+requestRemoveItem+"?json="+json);
                             System.out.println("Post request sent.");
                             try {
                                 writeStringToNewOutputWindow("Your request for removal of " + (String) itemQuantityComboBox.getSelectedItem()
@@ -461,6 +495,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_removeButtonActionPerformed
 
+    /**
+     * Facilitates exiting the system.
+     *
+     * @param evt a mouse click event
+     */
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         // TODO add your handling code here:
         int exit = JOptionPane.showConfirmDialog(null, "Are you sure you want to Exit?", null,
@@ -470,6 +509,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
+    /**
+     * Displays the solution to all your questions.
+     *
+     * @param evt a mouse click event
+     */
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
         // TODO add your handling code here:
         ImageIcon icon = new ImageIcon();
@@ -477,6 +521,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                 + "please contact Andrew Ensor: aensor@aut.ac.nz", "Help", JOptionPane.OK_OPTION, icon);
     }//GEN-LAST:event_helpMenuItemActionPerformed
 
+    /**
+     * Describes the product and the currently defined server URL.
+     *
+     * @param evt a mouse click event
+     */
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
         // TODO add your handling code here:
         ImageIcon icon = new ImageIcon();
@@ -494,6 +543,11 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_aboutMenuItemActionPerformed
 
+    /**
+     * Allows a new server URL to be set.
+     *
+     * @param evt a mouse click event
+     */
     private void settingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsMenuItemActionPerformed
         // TODO add your handling code here:
         JTextField serverAddress = new JTextField();
@@ -587,12 +641,13 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem settingsMenuItem;
     // End of variables declaration//GEN-END:variables
 
-    private String[] getItemNameArray() {
-        // TODO GET FROM SERVER        
-        String[] toReturn = {"A", "B", "C"};
-        return toReturn; // TEMP FIX
-    }
-
+    /**
+     * Creates and returns an array of values from 1 to the quantity parameter.
+     * Used for number of items to remove selection
+     *
+     * @param quantity the upper bound of the array
+     * @return the array
+     */
     private String[] getItemQuantityArray(int quantity) {
         String[] toReturn = new String[quantity];
         for (int i = 0; i < quantity; i++) {
@@ -601,15 +656,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         return toReturn;
     }
 
-    private void removeItem(String name, String quantity) { // BOOLEAN?
-// TODO - REMOVE FROM SERVER
-    }
-
-    private int getItemQuantity(String s) {
-// TODO - GET QUANTITY FROM SERVER
-        return 5;  // TEMP FIX
-    }
-
+    /**
+     * Confirms string is JSON or not
+     *
+     * @param s the candidate JSON
+     * @return true if JSON
+     */
     private boolean isJSON(String s) {
         try {
             Inventory test = new Gson().fromJson(s, Inventory.class);
@@ -619,6 +671,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Checks string price is not negative and represents a Double
+     *
+     * @param text the string to check
+     * @return true if valid
+     */
     private boolean isPriceValid(String text) {
         try {
             double price = Double.parseDouble(text);
@@ -628,6 +686,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Checks string quantity is not negative and represents an Integer
+     *
+     * @param text the string to check
+     * @return true if valid
+     */
     private boolean isQuantityValid(String text) {
         try {
             int quantity = Integer.parseInt(text);
