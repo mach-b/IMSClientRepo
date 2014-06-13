@@ -27,13 +27,15 @@ import javax.swing.text.Document;
 public class InventoryClientJFrame extends javax.swing.JFrame {
 
     private Client client;
-    private String serverURL = "http://localhost:8080/InventoryManagementSystem-war/webresources";
+    private String serverURL = "http://localhost:8080/InventoryManagementSystem/";
+    //private String serverURL = "http://localhost:8080/InventoryManagementSystem/webresources/";
+    //private String serverURL = "http://localhost:8080/IMS/webresources/";
     private final HttpHelper httpHelper;
 
-    private final String requestAddItem = "/manager/add";
-    private final String requestUpdateItem = "/manager/update";  // FIX CASE OF VARIABLES
-    private final String requestRemoveItem = "/manager/remove";
-    private final String requestGetInventory = "/manager";
+    private final String requestAddItem = "manager/add/";
+    private final String requestUpdateItem = "manager/update/";  // FIX CASE OF VARIABLES
+    private final String requestRemoveItem = "manager/remove/";
+    private final String requestGetInventory = "manager";
 
     /**
      * Creates new form InventoryClientJFrame
@@ -95,6 +97,8 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        logoPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         buttonPanel = new javax.swing.JPanel();
         findButton = new javax.swing.JButton();
         addButton = new javax.swing.JButton();
@@ -115,9 +119,19 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(500, 500));
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
+        logoPanel.setMaximumSize(new java.awt.Dimension(500, 100));
+        logoPanel.setMinimumSize(new java.awt.Dimension(500, 100));
+        logoPanel.setPreferredSize(new java.awt.Dimension(500, 100));
+        logoPanel.setSize(new java.awt.Dimension(500, 100));
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imsclient/logoIMS.png"))); // NOI18N
+        logoPanel.add(jLabel1);
+
+        getContentPane().add(logoPanel);
+
         buttonPanel.setMaximumSize(new java.awt.Dimension(500, 50));
         buttonPanel.setPreferredSize(new java.awt.Dimension(500, 50));
-        buttonPanel.setSize(new java.awt.Dimension(500, 50));
         buttonPanel.setLayout(new java.awt.GridLayout(1, 0));
 
         findButton.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
@@ -161,7 +175,6 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         outputScrollPane.setMaximumSize(new java.awt.Dimension(500, 400));
         outputScrollPane.setMinimumSize(new java.awt.Dimension(500, 400));
         outputScrollPane.setPreferredSize(new java.awt.Dimension(500, 400));
-        outputScrollPane.setSize(new java.awt.Dimension(500, 400));
 
         outputWindow.setEditable(false);
         outputWindow.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
@@ -290,7 +303,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
                         itemPrice.getText(), itemQuantity.getText());
                 String json = new Gson().toJson(itemToRemove);
                 try {
-                    httpHelper.sendPostRequest((serverURL + requestAddItem), json);
+                    httpHelper.sendPostRequest((serverURL + requestAddItem + json));
                     System.out.println("Post request sent.");
                     try {
                         writeStringToNewOutputWindow("Request for addition of " + itemQuantity.getText()
@@ -414,7 +427,7 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
 
                         String json = new Gson().toJson(itemToRemove);
                         try {
-                            httpHelper.sendPostRequest((serverURL + requestRemoveItem), json);
+                            httpHelper.sendPostRequest((serverURL + requestRemoveItem+json));
                             System.out.println("Post request sent.");
                             try {
                                 writeStringToNewOutputWindow("Your request for removal of " + (String) itemQuantityComboBox.getSelectedItem()
@@ -470,12 +483,12 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
         System.out.println("" + !("".equalsIgnoreCase(serverURL)));
         if (!("".equalsIgnoreCase(serverURL)) && (serverURL != null)) {
             JOptionPane.showMessageDialog(null, "<html><center>Message Inventory System v0.1<center><br>"
-                    + "<br><center>Developed by<center><br>"
-                    + "<center>Tomas Morton and Mark Burton<br><center><br>"
-                    + "<br><center>Your specified Server URL is: " + serverURL + "<center><br><html>", "About", JOptionPane.OK_OPTION, icon);
+                    + "<br><center>Developed by:<br>"
+                    + "Tomas Morton and Mark Burton<br><center><br>"
+                    + "<br><center>Your specified Server URL is:<br>" + serverURL + "<center><br><html>", "About", JOptionPane.OK_OPTION, icon);
         } else {
             JOptionPane.showMessageDialog(null, "<html><center>Message Inventory System v0.1<center><br>"
-                    + "<br><center>Developed by<center><br>"
+                    + "<br><center>Developed by<center>"
                     + "<center>Tomas Morton and Mark Burton<br><center><br>"
                     + "<br><center>Your specified Server URL is not set.<center><br><html>", "About", JOptionPane.OK_OPTION, icon);
         }
@@ -563,7 +576,9 @@ public class InventoryClientJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JButton findButton;
     private javax.swing.JMenuItem helpMenuItem;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JButton listAllButton;
+    private javax.swing.JPanel logoPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuJMenu;
     private javax.swing.JScrollPane outputScrollPane;

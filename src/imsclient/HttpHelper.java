@@ -24,9 +24,8 @@ public class HttpHelper {
         URL getRequestURL = new URL(url);
         HttpURLConnection con = (HttpURLConnection) getRequestURL.openConnection();
         con.setRequestMethod("GET");
+        con.setRequestProperty("content-type", "application/json");
 
-        //add request header
-        //con.setRequestProperty("User-Agent", USER_AGENT);
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'GET' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
@@ -40,56 +39,31 @@ public class HttpHelper {
                 response.append(inputLine);
             }
         }
-        
         //print result RETURN STRING - maybe JSON string
         System.out.println("Response: "+response.toString());
+        con.disconnect();
         return response.toString();
         
     }
     
-    public String getRequest2(String urlString) throws MalformedURLException, IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection conn
-                = (HttpURLConnection) url.openConnection();
 
-//        if (conn.getResponseCode() != 200) {
-//            throw new IOException(conn.getResponseMessage());
-//        }
-
-        StringBuilder sb;
-        try ( // Buffer the result into a string
-                BufferedReader rd = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()))) {
-            sb = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-
-        conn.disconnect();
-        return sb.toString();
-
-    }
 
     // HTTP POST request
-    public void sendPostRequest(String url, String message) throws Exception {
+    public String sendPostRequest(String url) throws Exception {
         URL obj = new URL(url);
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         //add reuqest header
         con.setRequestMethod("POST");
-        //con.setRequestProperty("User-Agent", USER_AGENT);
-        //con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-        //String urlParameters = "sn=C02G8416DRJM&cn=&locale=&caller=&num=12345";
-        // Send post request
         con.setDoOutput(true);
+        con.setRequestProperty("content-type", "application/json");
+        
         try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.writeBytes(message);
+            wr.writeBytes(url);
             wr.flush();
         }
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Message : " + message);
+        System.out.println("Message : " + url);
         System.out.println("Response Code : " + responseCode);
 
         StringBuffer response;
@@ -104,7 +78,8 @@ public class HttpHelper {
 
         //print result
         System.out.println(response.toString());
-
+        con.disconnect();
+        return response.toString();
     }
 
 }
