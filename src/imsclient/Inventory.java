@@ -43,9 +43,10 @@ public class Inventory {
 
     public void createItemNameList() {
         itemNameList = new ArrayList<>();
-        itemArrayList.stream().forEach((item) -> {
+        for (InventoryItem item : itemArrayList)
+        {
             itemNameList.add(item.getName());
-        });
+        }
     }
 
     public InventoryItem getItem(String name) {
